@@ -1,0 +1,213 @@
+/* ============================================
+   HistoryPage - Histórico de Partidas
+   ============================================ */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: var(--space-lg);
+  background: linear-gradient(
+    180deg,
+    var(--color-background) 0%,
+    var(--color-surface-alt) 100%
+  );
+}
+
+.loadingWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.card {
+  width: 100%;
+  max-width: 800px;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-xl);
+  margin-top: var(--space-xl);
+}
+
+.header {
+  margin-bottom: var(--space-lg);
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+  color: var(--color-primary-dark);
+  margin-bottom: var(--space-xs);
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.emptyState {
+  text-align: center;
+  padding: var(--space-2xl) var(--space-lg);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: var(--space-md);
+}
+
+.emptyHint {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-top: var(--space-sm);
+}
+
+/* ============================================
+   Table
+   ============================================ */
+
+.tableWrapper {
+  overflow-x: auto;
+  margin: var(--space-lg) 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.table th {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.table td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-surface-alt);
+}
+
+.recordRow {
+  background-color: var(--color-success-light) !important;
+}
+
+.indexCell {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.scoreCell {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  font-family: monospace;
+}
+
+.durationCell {
+  color: var(--color-text-light);
+}
+
+.dateCell {
+  color: var(--color-text-light);
+  font-size: var(--font-size-xs);
+}
+
+.recordCell {
+  text-align: center;
+}
+
+/* ============================================
+   Source Info
+   ============================================ */
+
+.sourceInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-surface-alt);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  margin-bottom: var(--space-lg);
+}
+
+.sourceLabel {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+.sourceValue {
+  color: var(--color-primary);
+}
+
+/* ============================================
+   Actions
+   ============================================ */
+
+.actions {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.backButton {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.backButton:hover {
+  background-color: var(--color-border-light);
+}
+
+.statsButton {
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.statsButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* ============================================
+   Responsivo
+   ============================================ */
+
+@media (max-width: 480px) {
+  .card {
+    padding: var(--space-md);
+    margin-top: var(--space-md);
+  }
+
+  .title {
+    font-size: var(--font-size-xl);
+  }
+
+  .table {
+    font-size: var(--font-size-xs);
+  }
+
+  .table th,
+  .table td {
+    padding: var(--space-xs) var(--space-sm);
+  }
+}

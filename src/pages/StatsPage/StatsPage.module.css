@@ -1,0 +1,269 @@
+/* ============================================
+   StatsPage - Estatísticas do Jogador
+   ============================================ */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: var(--space-lg);
+  background: linear-gradient(
+    180deg,
+    var(--color-background) 0%,
+    var(--color-surface-alt) 100%
+  );
+}
+
+.loadingWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.card {
+  width: 100%;
+  max-width: 800px;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-xl);
+  margin-top: var(--space-xl);
+}
+
+.header {
+  margin-bottom: var(--space-lg);
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+  color: var(--color-primary-dark);
+  margin-bottom: var(--space-xs);
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   Stats Grid
+   ============================================ */
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background-color: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+}
+
+.statIcon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statValue {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  font-family: monospace;
+}
+
+.statLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ============================================
+   Last Played
+   ============================================ */
+
+.lastPlayed {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-surface-alt);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.lastPlayedLabel {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+.lastPlayedValue {
+  color: var(--color-text);
+}
+
+/* ============================================
+   Health Section
+   ============================================ */
+
+.healthSection {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  background-color: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+}
+
+.healthTitle {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.healthGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.healthItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.healthDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.healthDotOk {
+  background-color: var(--color-success);
+}
+
+.healthDotError {
+  background-color: var(--color-error);
+}
+
+.healthName {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  min-width: 120px;
+}
+
+.healthStatus {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* ============================================
+   Source Info
+   ============================================ */
+
+.sourceInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-surface-alt);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  margin-bottom: var(--space-lg);
+}
+
+.sourceLabel {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
+}
+
+.sourceValue {
+  color: var(--color-primary);
+}
+
+/* ============================================
+   Actions
+   ============================================ */
+
+.actions {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.backButton {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.backButton:hover {
+  background-color: var(--color-border-light);
+}
+
+.historyButton {
+  background-color: var(--color-secondary);
+  color: white;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.historyButton:hover {
+  background-color: var(--color-secondary-dark);
+}
+
+.rankingButton {
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.rankingButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* ============================================
+   Responsivo
+   ============================================ */
+
+@media (max-width: 480px) {
+  .card {
+    padding: var(--space-md);
+    margin-top: var(--space-md);
+  }
+
+  .title {
+    font-size: var(--font-size-xl);
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

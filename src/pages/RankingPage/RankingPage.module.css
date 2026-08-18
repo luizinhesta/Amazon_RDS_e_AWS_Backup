@@ -1,0 +1,257 @@
+/* ============================================
+   RankingPage - Ranking Comparativo
+   ============================================ */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: var(--space-lg);
+  background: linear-gradient(
+    180deg,
+    var(--color-background) 0%,
+    var(--color-surface-alt) 100%
+  );
+}
+
+.loadingWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.card {
+  width: 100%;
+  max-width: 900px;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-xl);
+  margin-top: var(--space-xl);
+}
+
+.header {
+  margin-bottom: var(--space-lg);
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+  color: var(--color-primary-dark);
+  margin-bottom: var(--space-xs);
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   Tabs
+   ============================================ */
+
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: var(--space-lg);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.tab {
+  flex: 1;
+  padding: var(--space-sm) var(--space-md);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-radius: 0;
+}
+
+.tab:hover {
+  color: var(--color-primary);
+  background-color: var(--color-surface-alt);
+}
+
+.tabActive {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* ============================================
+   Ranking Content
+   ============================================ */
+
+.rankingContent {
+  margin-bottom: var(--space-lg);
+}
+
+.sourceDescription {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm);
+  background-color: var(--color-surface-alt);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-primary);
+}
+
+.emptyMessage {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--space-xl);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  border-bottom: 2px solid var(--color-border);
+  font-size: var(--font-size-sm);
+}
+
+.table td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-surface-alt);
+}
+
+.positionCell {
+  font-size: var(--font-size-lg);
+  text-align: center;
+  width: 50px;
+}
+
+.usernameCell {
+  font-weight: var(--font-weight-medium);
+}
+
+.scoreCell {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  font-family: monospace;
+}
+
+.gamesCell {
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* ============================================
+   Comparison Table
+   ============================================ */
+
+.comparison {
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md);
+  background-color: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+}
+
+.comparisonTitle {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.comparisonTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.comparisonTable th {
+  background-color: var(--color-surface);
+  padding: var(--space-sm);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  font-weight: var(--font-weight-semibold);
+}
+
+.comparisonTable td {
+  padding: var(--space-sm);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+/* ============================================
+   Actions
+   ============================================ */
+
+.actions {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.backButton {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.backButton:hover {
+  background-color: var(--color-border-light);
+}
+
+.refreshButton {
+  background-color: var(--color-primary);
+  color: white;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.refreshButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* ============================================
+   Responsivo
+   ============================================ */
+
+@media (max-width: 480px) {
+  .card {
+    padding: var(--space-md);
+    margin-top: var(--space-md);
+  }
+
+  .title {
+    font-size: var(--font-size-xl);
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tab {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+  }
+
+  .tabActive {
+    border-left-color: var(--color-primary);
+    border-bottom-color: transparent;
+  }
+
+  .comparisonTable {
+    font-size: var(--font-size-xs);
+  }
+}
