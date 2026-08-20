@@ -11,9 +11,10 @@ Praticar a camada de persistência da AWS com banco de dados relacional, separa�
 ```
 Jogador → CloudFront → S3 (Frontend React)
 Jogador → Cognito (Autenticação)
-Jogador → ALB → Backend (Node.js) → ElastiCache (dados temporários)
-                                   → RDS Proxy → RDS Principal (escrita)
-                                   → RDS Réplica (leitura)
+Jogador → API Gateway → Lambda (Node.js) → ElastiCache (dados temporários)
+                                          → RDS Proxy → RDS Principal (escrita)
+                                          → RDS Réplica (leitura)
+Admin → SSM Session Manager → EC2 Bastion → RDS / Proxy / Réplica
 ```
 
 ## 📦 O Que Cada Serviço Faz
@@ -22,19 +23,20 @@ Jogador → ALB → Backend (Node.js) → ElastiCache (dados temporários)
 |---------|-----------------|
 | **Cognito** | Login, cadastro, recuperação de senha |
 | **S3 + CloudFront** | Hospeda o frontend (HTML/CSS/JS) |
-| **ALB** | Balanceia requisições ao backend |
-| **Backend (EC2/Lambda)** | Lógica de negócio, API REST |
+| **API Gateway** | Expõe a API REST para o frontend (HTTPS) |
+| **Lambda** | Lógica de negócio, API REST (serverless) |
 | **ElastiCache (Redis)** | Sessões de jogo, ranking tempo real, jogadores online |
 | **RDS Principal** | Armazena permanentemente: partidas, recordes, perfis |
 | **RDS Réplica** | Leitura escalável: ranking consolidado, histórico, estatísticas |
 | **RDS Proxy** | Pool de conexões, failover, integração Secrets Manager |
 | **Secrets Manager** | Guarda senha do banco com segurança |
 | **CloudWatch** | Monitoramento e alertas |
+| **EC2 Bastion (SSM)** | Acesso administrativo ao RDS via Session Manager |
 
 ## 🛠️ Tecnologias
 
 - **Frontend**: React 18 + TypeScript + Vite
-- **Backend**: Node.js + TypeScript (Lambda ou EC2)
+- **Backend**: Node.js + TypeScript (AWS Lambda)
 - **Autenticação**: AWS Amplify + Amazon Cognito
 - **Cache**: Redis (Amazon ElastiCache)
 - **Banco de dados**: PostgreSQL 15 (Amazon RDS)
@@ -76,10 +78,10 @@ Jogador → ALB → Backend (Node.js) → ElastiCache (dados temporários)
 | RDS Réplica db.t3.micro | ~$12 |
 | RDS Proxy | ~$10 |
 | ElastiCache cache.t3.micro | ~$12 |
-| ALB | ~$16 |
+| API Gateway | ~$1 (pay-per-request, mínimo em lab) |
 | NAT Gateway | ~$32 |
 | Secrets Manager | ~$0.40 |
-| **Total estimado** | **~$95/mês** |
+| **Total estimado** | **~$80/mês** |
 
 ⚠️ Valores aproximados para us-east-1. Consulte a [Calculadora AWS](https://calculator.aws/) para valores atualizados.
 

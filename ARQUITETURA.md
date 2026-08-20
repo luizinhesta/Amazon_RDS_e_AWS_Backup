@@ -32,10 +32,10 @@ graph TB
         Cognito[Amazon Cognito]
     end
 
-    %% Backend
-    subgraph Backend["Backend (EC2 / ECS)"]
-        ALB[Application Load Balancer]
-        App[Aplicação Node.js]
+    %% Backend Serverless
+    subgraph BackendServerless["Backend Serverless"]
+        APIGateway[API Gateway]
+        Lambda[AWS Lambda - Node.js]
     end
 
     %% Cache
@@ -48,6 +48,12 @@ graph TB
         RDSProxy[RDS Proxy]
         RDSPrincipal[RDS Principal - Writer]
         RDSReplica[RDS Réplica - Reader]
+    end
+
+    %% Acesso Administrativo
+    subgraph Admin["Acesso Administrativo"]
+        SSM[Systems Manager]
+        Bastion[EC2 Bastion]
     end
 
     %% Segurança e Monitoramento
@@ -69,22 +75,27 @@ graph TB
     Cliente -->|HTTPS| CloudFront
     CloudFront --> S3
     Cliente -->|Auth| Cognito
-    Cliente -->|API REST| ALB
+    Cliente -->|API REST| APIGateway
 
-    %% Backend
-    ALB --> App
-    App --> ElastiCache
-    App --> RDSProxy
+    %% Backend Serverless
+    APIGateway --> Lambda
+    Lambda --> ElastiCache
+    Lambda --> RDSProxy
+    Lambda -->|Leituras pesadas| RDSReplica
 
     %% Banco de Dados
     RDSProxy --> RDSPrincipal
     RDSPrincipal -->|Replicação Assíncrona| RDSReplica
-    App -->|Leituras pesadas| RDSReplica
+
+    %% Acesso Administrativo
+    SSM --> Bastion
+    Bastion -->|psql via Proxy| RDSProxy
+    Bastion -->|psql direto| RDSReplica
 
     %% Segurança
     SecretsManager -.->|Credenciais| RDSProxy
-    SGGroups -.->|Regras| ALB
-    SGGroups -.->|Regras| App
+    SGGroups -.->|Regras| Lambda
+    SGGroups -.->|Regras| Bastion
     SGGroups -.->|Regras| ElastiCache
     SGGroups -.->|Regras| RDSProxy
     SGGroups -.->|Regras| RDSPrincipal
@@ -94,7 +105,7 @@ graph TB
     RDSPrincipal --> Snapshot
 
     %% Monitoramento
-    App -.->|Métricas/Logs| CloudWatch
+    Lambda -.->|Métricas/Logs| CloudWatch
     RDSPrincipal -.->|Métricas| CloudWatch
     ElastiCache -.->|Métricas| CloudWatch
 ```
@@ -149,7 +160,7 @@ graph TB
 sequenceDiagram
     participant J as 🦕 Jogador
     participant F as Frontend (React)
-    participant B as Backend (Node.js)
+    participant B as Lambda (Node.js)
     participant C as ElastiCache (Redis)
     participant P as RDS Proxy
     participant DB as RDS Principal
@@ -257,30 +268,33 @@ graph LR
         User[🌐 Usuário]
     end
 
-    subgraph SG_ALB["SG-ALB"]
-        ALB[ALB<br/>Porta 443 ← Internet]
+    APIGW[API Gateway<br/>Serviço gerenciado - sem SG]
+
+    subgraph SG_Lambda["SG-Lambda"]
+        Lambda[Lambda<br/>← API Gateway]
     end
 
-    subgraph SG_Backend["SG-Backend"]
-        App[Backend<br/>Porta 3000 ← SG-ALB]
+    subgraph SG_Bastion["SG-Bastion"]
+        Bastion[EC2 Bastion<br/>← SSM Session Manager]
     end
 
     subgraph SG_Cache["SG-Cache"]
-        Redis[ElastiCache<br/>Porta 6379 ← SG-Backend]
+        Redis[ElastiCache<br/>Porta 6379 ← SG-Lambda]
     end
 
     subgraph SG_Proxy["SG-Proxy"]
-        Proxy[RDS Proxy<br/>Porta 5432 ← SG-Backend]
+        Proxy[RDS Proxy<br/>Porta 5432 ← SG-Lambda, SG-Bastion]
     end
 
     subgraph SG_RDS["SG-RDS"]
-        RDS[RDS Principal + Réplica<br/>Porta 5432 ← SG-Backend, SG-Proxy]
+        RDS[RDS Principal + Réplica<br/>Porta 5432 ← SG-Proxy]
     end
 
-    User -->|HTTPS 443| ALB
-    ALB -->|3000| App
-    App -->|6379| Redis
-    App -->|5432| Proxy
+    User -->|HTTPS 443| APIGW
+    APIGW --> Lambda
+    Lambda -->|6379| Redis
+    Lambda -->|5432| Proxy
+    Bastion -->|5432| Proxy
     Proxy -->|5432| RDS
 ```
 
@@ -289,11 +303,11 @@ graph LR
 1. **Princípio do menor privilégio** — Cada Security Group permite apenas o tráfego estritamente necessário
 2. **Defesa em profundidade** — Múltiplas camadas de segurança (SG → Subnets privadas → Criptografia)
 3. **Sem acesso público ao banco** — RDS e ElastiCache em subnets privadas, sem IP público
-4. **Criptografia em trânsito** — TLS/SSL em todas as conexões (ALB→Backend, Backend→Cache, Proxy→RDS)
+4. **Criptografia em trânsito** — TLS/SSL em todas as conexões (API Gateway→Lambda, Lambda→Cache, Proxy→RDS)
 5. **Criptografia em repouso** — AES-256 via AWS KMS para dados no RDS e backups
 6. **Rotação de credenciais** — Secrets Manager rotaciona senhas do banco automaticamente
 7. **Autenticação IAM** — RDS Proxy usa IAM Authentication, eliminando senhas hardcoded
-8. **Isolamento de rede** — VPC com subnets públicas (ALB) e privadas (Backend, Cache, DB)
+8. **Isolamento de rede** — VPC com subnets privadas (Lambda, Cache, DB) e acesso administrativo via SSM
 9. **Logs de auditoria** — CloudTrail registra todas as chamadas de API aos recursos
 
 ---
@@ -305,8 +319,9 @@ graph LR
 | Amazon S3 | Hospedagem dos arquivos estáticos do frontend (HTML, CSS, JS, assets) |
 | Amazon CloudFront | CDN para distribuição global com baixa latência e cache de borda |
 | Amazon Cognito | Autenticação e gerenciamento de usuários (sign-up, login, JWT) |
-| Application Load Balancer | Distribuição de tráfego HTTPS para instâncias do backend |
-| Amazon EC2 / ECS | Execução da aplicação backend Node.js |
+| Amazon API Gateway | Expõe a API REST para o frontend |
+| AWS Lambda | Executa o backend Node.js (serverless) |
+| Amazon EC2 (Bastion) | Acesso administrativo ao RDS via Systems Manager Session Manager |
 | Amazon ElastiCache (Redis) | Cache em memória para dados temporários e real-time |
 | Amazon RDS (PostgreSQL) | Banco de dados relacional principal para persistência |
 | RDS Read Replica | Réplica de leitura para consultas pesadas (ranking, histórico) |
