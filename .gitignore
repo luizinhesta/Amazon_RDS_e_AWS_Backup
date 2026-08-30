@@ -5,6 +5,8 @@ node_modules
 .env
 .env.local
 .env.*.local
+# Versionar os arquivos de exemplo
+!.env.example
 
 # Build output
 dist
@@ -26,3 +28,9 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Kiro
+.kiro/
+
+# Imagens originais (não versionar)
+imagens/originais/

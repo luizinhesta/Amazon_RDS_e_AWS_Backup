@@ -80,6 +80,8 @@ Manter padrão (todo o tráfego permitido).
 ### Resultado Esperado
 Grupo de segurança criado. Anotar o ID: `<SECURITY_GROUP_RDS>`
 
+![Descrição da imagem](<imagens/imagem%20(11).png>)
+
 ---
 
 ## Etapa 2 — Criar Security Group para o RDS Proxy
@@ -115,6 +117,8 @@ Voltar ao `dinogame-sg-rds` e adicionar regra:
 |------|-----------|-------|--------|
 | PostgreSQL | TCP | 5432 | `<SECURITY_GROUP_PROXY>` |
 
+![Descrição da imagem](<imagens/imagem%20(10).png>)
+
 ---
 
 ## Etapa 2.1 — Criar Security Group do Bastion
@@ -146,6 +150,8 @@ Nenhuma regra de entrada obrigatória. O SSM Session Manager não requer portas 
 
 ### Resultado Esperado
 Grupo de segurança criado. Anotar o ID: `<SECURITY_GROUP_BASTION>`
+
+![Descrição da imagem](<imagens/imagem%20(13).png>)
 
 ---
 
@@ -179,10 +185,14 @@ Console AWS → VPC → Sub-redes → Criar sub-rede
 | Zona de disponibilidade | us-east-1a |
 | IPv4 CIDR block | (bloco disponível, ex: 10.0.3.0/24) |
 
+![Descrição da imagem](<imagens/imagem%20(24).png>)
+
 #### Passo 2 — Associar ao Internet Gateway
 
 Verificar que a VPC já possui um Internet Gateway (IGW) associado. Se não:
 - Console AWS → VPC → Gateways de internet → Criar → Associar à VPC
+
+![Descrição da imagem](<imagens/imagem%20(28).png>)
 
 #### Passo 3 — Configurar tabela de rotas
 
@@ -198,6 +208,8 @@ Associar esta tabela de rotas à sub-rede `dinogame-subnet-publica-bastion`.
 #### Passo 4 — Habilitar IP público automático
 
 Console AWS → VPC → Sub-redes → `dinogame-subnet-publica-bastion` → Ações → Modificar configurações de atribuição automática de IP → ✅ Habilitar atribuição automática de endereço IPv4 público
+
+![Descrição da imagem](<imagens/imagem%20(19).png>)
 
 #### Passo 5 — Criar instância EC2 bastion
 
@@ -222,6 +234,8 @@ Console AWS → EC2 → Executar instâncias
 - SSM Agent se registra automaticamente (aguardar 2-3 minutos)
 - Verificar em: Console AWS → Systems Manager → Gerenciador de frotas → instância aparece como "Online"
 - Anotar: `<INSTANCE_ID_BASTION>`
+
+![Descrição da imagem](<imagens/imagem%20(12).png>)
 
 ---
 
@@ -321,6 +335,8 @@ Console AWS → Amazon RDS → Bancos de dados → Criar banco de dados
 - Status: "Creating" → aguardar "Available" (5-10 min)
 - Anotar endpoint: `<RDS_ENDPOINT_PRINCIPAL>`
 
+![Descrição da imagem](<imagens/imagem%20(17).png>)
+
 ---
 
 ## Fluxo de Acesso Administrativo
@@ -382,8 +398,8 @@ sudo dnf install -y postgresql15
 ### Passo 2 — Clonar o repositório na EC2
 
 ```bash
-git clone https://github.com/Luizinhesta/Amazon_RDS_e_AWS_Backup.git
-cd Amazon_RDS_e_AWS_Backup/sql
+git clone https://github.com/<SEU_USUARIO>/<SEU_REPOSITORIO>.git
+cd <SEU_REPOSITORIO>/sql
 ```
 
 ### Passo 3 — Criar banco e usuário
@@ -522,6 +538,8 @@ SELECT current_user;  -- deve retornar 'dinogame_app'
 
 > ⚠️ Se receber erro `"The password that was provided for the role dinogame_app is wrong"`, isso indica dessincronização entre a senha no PostgreSQL e no Secrets Manager. Consulte a seção **Sincronização de Senhas** acima.
 
+![Descrição da imagem](<imagens/imagem%20(18).png>)
+
 ---
 
 ## Etapa 8 — Criar Réplica de Leitura
@@ -574,6 +592,8 @@ SELECT COUNT(*) FROM players;
 
 > ℹ️ As consultas acima são suficientes para confirmar que a réplica é somente leitura, sem deixar resíduos no banco.
 
+![Descrição da imagem](<imagens/imagem%20(15).png>)
+
 ---
 
 ## Etapa 8.1 — Configurar Lambda na VPC e API Gateway
@@ -592,6 +612,8 @@ Console AWS → Lambda → `dinogame-backend` → Configuração → VPC → Edi
 | Security groups | `<SECURITY_GROUP_LAMBDA>` |
 
 > ⚠️ A Lambda precisa da IAM Policy `AWSLambdaVPCAccessExecutionRole` na execution role para criar ENIs nas sub-redes da VPC. Se a role da Lambda não tiver essa policy, adicione em: Console AWS → IAM → Funções → role da Lambda → Anexar política.
+
+![Descrição da imagem](<imagens/imagem%20(21).png>)
 
 ### Parte B — Configurar variáveis de ambiente da Lambda
 
@@ -612,6 +634,10 @@ Console AWS → Lambda → `dinogame-backend` → Configuração → Variáveis 
 | `ALLOWED_ORIGINS` | `https://<DOMINIO_APLICACAO>` |
 
 Clicar "Salvar".
+
+> ℹ️ A lista completa dessas variáveis está documentada em `backend/.env.example`. Para testar o backend localmente, copie esse arquivo para `backend/.env` (`Copy-Item .env.example .env` no Windows ou `cp .env.example .env` no Linux/Mac) e preencha os valores. O `.env` real não deve ser versionado.
+
+![Descrição da imagem](<imagens/imagem%20(22).png>)
 
 ### Parte C — Criar rotas do Projeto 3 no API Gateway
 
@@ -637,6 +663,8 @@ Para cada método:
 3. Criar método → OPTIONS → Tipo de integração: Mock → Salvar (para CORS preflight)
 
 > ℹ️ O método OPTIONS é necessário para que o navegador envie o preflight CORS corretamente.
+
+![Descrição da imagem](<imagens/imagem%20(22).png>)
 
 ### Parte D — Deploy do API Gateway
 
@@ -710,6 +738,8 @@ zip -r lambda-function.zip dist/ node_modules/
 
 Console AWS → Lambda → `dinogame-backend` → Código → Carregar a partir de → Arquivo .zip → Selecionar `lambda-function.zip` → Salvar
 
+![Descrição da imagem](<imagens/imagem%20(27).png>)
+
 ### Passo 5 — Variáveis de ambiente
 
 As variáveis de ambiente da Lambda já foram configuradas na **Etapa 8.1 — Parte B**. Se necessário ajustar algum valor:
@@ -748,15 +778,37 @@ cd "c:\github\Amazon backup"
 npm install
 ```
 
-### Passo 2 — Configurar variável de ambiente
+### Passo 2 — Configurar variáveis de ambiente
 
-Criar arquivo `.env` na raiz:
+Copie o arquivo de exemplo `.env.example` (na raiz do projeto) para `.env` e preencha com os valores reais:
+
+```powershell
+# Windows PowerShell
+Copy-Item .env.example .env
+```
+
+```bash
+# Linux/Mac
+cp .env.example .env
+```
+
+Edite o `.env` com os valores do seu ambiente:
 
 ```env
+VITE_AWS_REGION=us-east-1
+VITE_COGNITO_USER_POOL_ID=<COGNITO_USER_POOL_ID>
+VITE_COGNITO_USER_POOL_CLIENT_ID=<COGNITO_USER_POOL_CLIENT_ID>
 VITE_API_URL=https://<API_GATEWAY_URL>
 ```
 
-> ⚠️ **SEGURANÇA:** Variáveis `VITE_` são incorporadas ao bundle JavaScript durante o build e ficam visíveis no navegador. Nunca inclua senhas, endpoints privados do RDS, ou chaves AWS neste arquivo.
+| Variável | Onde obter |
+|----------|-----------|
+| `VITE_AWS_REGION` | Região dos recursos (ex.: `us-east-1`) |
+| `VITE_COGNITO_USER_POOL_ID` | Console AWS → Cognito → User Pool → ID do pool |
+| `VITE_COGNITO_USER_POOL_CLIENT_ID` | Console AWS → Cognito → User Pool → App integration → App client |
+| `VITE_API_URL` | URL do API Gateway anotada na Etapa 8.1 — Parte D |
+
+> ⚠️ **SEGURANÇA:** Variáveis `VITE_` são incorporadas ao bundle JavaScript durante o build e ficam visíveis no navegador. Nunca inclua senhas, endpoints privados do RDS, ou chaves AWS neste arquivo. O `.env` real não deve ser versionado (já está no `.gitignore`) — versione apenas o `.env.example`.
 
 ### Passo 3 — Compilar
 
@@ -771,6 +823,7 @@ Resultado: pasta `dist/` criada.
 ```bash
 aws s3 sync dist/ s3://<BUCKET_SITE>/ --delete --region us-east-1
 ```
+![Descrição da imagem](<imagens/imagem%20(23).png>)
 
 ### Passo 5 — Invalidar cache do CloudFront
 

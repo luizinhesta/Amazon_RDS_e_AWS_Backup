@@ -1,12 +1,74 @@
 # 🦖 AWS Dino Game — Projeto 3: Amazon RDS, Réplica e Backup
 
-Jogo web do dinossauro com persistência de dados usando Amazon RDS (PostgreSQL), RDS Proxy, Réplica de Leitura e Backup automático.
+![Descrição da imagem](<imagens/imagem%20(1).png>)
 
-## 🎯 Objetivo
+Jogo web do dinossauro com persistência de dados na AWS, usando **Amazon RDS (PostgreSQL)**, **RDS Proxy**, **Réplica de Leitura** e **backup automático**. Este projeto adiciona a camada de dados durável e escalável sobre uma stack serverless (S3, CloudFront, Cognito, API Gateway, Lambda e ElastiCache).
 
-Praticar a camada de persistência da AWS com banco de dados relacional, separação de leitura/escrita, backup e recuperação.
+> Projeto de laboratório focado em praticar a camada de persistência da AWS: banco relacional, separação leitura/escrita, pool de conexões, backup e recuperação de desastres.
 
-## 🏗️ Arquitetura Completa
+<p align="center">
+  <img src="imagens/imagem%20(31).png" width="30%" />
+  <img src="imagens/imagem%20(32).png" width="30%" />
+  <img src="imagens/imagem%20(33).png" width="30%" />
+</p>
+<p align="center">
+  <img src="imagens/imagem%20(34).png" width="30%" />
+  <img src="imagens/imagem%20(35).png" width="30%" />
+  <img src="imagens/imagem%20(36).png" width="30%" />
+</p>
+<p align="center">
+  <img src="imagens/imagem%20(37).png" width="30%" />
+</p>
+
+---
+
+## 📑 Sumário
+
+- [Sobre o Projeto](#-sobre-o-projeto)
+- [Principais Recursos](#-principais-recursos)
+- [Visão Geral da Arquitetura](#-visão-geral-da-arquitetura)
+- [Tecnologias](#-tecnologias)
+- [Estrutura do Repositório](#-estrutura-do-repositório)
+- [Como Rodar / Implantar](#-como-rodar--implantar)
+- [Documentação](#-documentação)
+- [Custos Estimados](#-custos-estimados)
+- [Segurança](#-segurança)
+- [Licença](#-licença)
+
+---
+
+## 🎯 Sobre o Projeto
+
+O objetivo é armazenar os dados do jogo (partidas, recordes, perfis e estatísticas) de forma durável e segura, complementando o cache volátil do ElastiCache. A arquitetura separa **escritas** (RDS Principal) de **leituras pesadas** (RDS Réplica), usa **RDS Proxy** para gerenciar conexões e failover, e mantém **backups automáticos** com Point-in-Time Recovery.
+
+O que este projeto demonstra na prática:
+
+- Persistência relacional com **PostgreSQL** no Amazon RDS
+- **Separação leitura/escrita** com réplica de leitura
+- **Pool de conexões** e failover transparente com RDS Proxy
+- **Rotação de credenciais** via AWS Secrets Manager
+- **Backup e recuperação** (automático + snapshots manuais)
+- Integração com uma stack **serverless** já existente (Cognito, API Gateway, Lambda, ElastiCache)
+
+---
+
+## ✨ Principais Recursos
+
+| Camada | O que faz |
+|--------|-----------|
+| 🖥️ **Cliente & Frontend** | Navegador acessa via HTTPS → CloudFront (CDN global) → S3 (React estático) |
+| ⚙️ **Backend Serverless** | API Gateway (REST) → Lambda (Node.js) com validação de token via Cognito |
+| 🗄️ **Camada de Dados** | ElastiCache (Redis) para dados em tempo real, RDS Proxy, RDS Principal (writer) e RDS Réplica (reader) |
+| 🔐 **Acesso Administrativo** | AWS Systems Manager (Session Manager) → EC2 Bastion, sem SSH exposto |
+| 💾 **Backup & Recuperação** | Backup automático (retenção de 7 dias) + snapshots manuais sob demanda |
+
+Para o detalhamento completo de cada camada, fluxos de dados e princípios de segurança, veja **[ARQUITETURA.md](./ARQUITETURA.md)**.
+
+![Descrição da imagem](<imagens/imagem%20(5).png>)
+
+---
+
+## 🏗️ Visão Geral da Arquitetura
 
 ```
 Jogador → CloudFront → S3 (Frontend React)
@@ -14,24 +76,16 @@ Jogador → Cognito (Autenticação)
 Jogador → API Gateway → Lambda (Node.js) → ElastiCache (dados temporários)
                                           → RDS Proxy → RDS Principal (escrita)
                                           → RDS Réplica (leitura)
-Admin → SSM Session Manager → EC2 Bastion → RDS / Proxy / Réplica
+Admin  → SSM Session Manager → EC2 Bastion → RDS / Proxy / Réplica
 ```
 
-## 📦 O Que Cada Serviço Faz
+Fluxo resumido de uma requisição: o usuário acessa a aplicação, os arquivos vêm do S3 via CloudFront, o Cognito valida o token JWT, a Lambda processa a requisição e os dados são salvos no RDS (via Proxy) ou no cache Redis. Todas as conexões sensíveis usam TLS (HTTPS 443, Redis 6379, PostgreSQL 5432) dentro da VPC privada.
 
-| Serviço | Responsabilidade |
-|---------|-----------------|
-| **Cognito** | Login, cadastro, recuperação de senha |
-| **S3 + CloudFront** | Hospeda o frontend (HTML/CSS/JS) |
-| **API Gateway** | Expõe a API REST para o frontend (HTTPS) |
-| **Lambda** | Lógica de negócio, API REST (serverless) |
-| **ElastiCache (Redis)** | Sessões de jogo, ranking tempo real, jogadores online |
-| **RDS Principal** | Armazena permanentemente: partidas, recordes, perfis |
-| **RDS Réplica** | Leitura escalável: ranking consolidado, histórico, estatísticas |
-| **RDS Proxy** | Pool de conexões, failover, integração Secrets Manager |
-| **Secrets Manager** | Guarda senha do banco com segurança |
-| **CloudWatch** | Monitoramento e alertas |
-| **EC2 Bastion (SSM)** | Acesso administrativo ao RDS via Session Manager |
+📐 **Diagramas Mermaid completos** (arquitetura, fluxo de partida, backup e segurança) estão em **[ARQUITETURA.md](./ARQUITETURA.md)**.
+
+![Descrição da imagem](<imagens/imagem%20(2).png>)
+
+---
 
 ## 🛠️ Tecnologias
 
@@ -41,34 +95,52 @@ Admin → SSM Session Manager → EC2 Bastion → RDS / Proxy / Réplica
 - **Cache**: Redis (Amazon ElastiCache)
 - **Banco de dados**: PostgreSQL 15 (Amazon RDS)
 - **Pool de conexões**: Amazon RDS Proxy
+- **Infra AWS**: S3, CloudFront, API Gateway, Secrets Manager, KMS, CloudWatch, VPC, Security Groups, EC2 Bastion, Systems Manager
 
-## 📁 Estrutura do Projeto
+---
+
+## 📁 Estrutura do Repositório
 
 ```
-├── src/                # Frontend React
-├── backend/            # Backend Node.js (Lambda)
+├── src/                # Frontend React (TypeScript + Vite)
+├── backend/            # Backend Node.js (AWS Lambda)
 ├── sql/                # Scripts SQL (banco, tabelas, índices, dados de teste)
 ├── imagens/            # Screenshots e diagramas
-├── ARQUITETURA.md      # Diagramas e explicações técnicas
-├── IMPLANTACAO.md      # Passo a passo completo pelo Console AWS
-└── README.md           # Este arquivo
+├── ARQUITETURA.md      # Arquitetura do projeto: diagramas, fluxos e segurança
+├── IMPLANTACAO.md      # Passo a passo de implantação pelo Console AWS
+└── README.md           # Apresentação do projeto (este arquivo)
 ```
+
+---
+
+## � Como Rodar / Implantar
+
+A implantação é feita **manualmente pelo Console AWS** (sem Terraform/CDK), seguindo um guia detalhado passo a passo.
+
+Resumo das etapas (o passo a passo completo está em **[IMPLANTACAO.md](./IMPLANTACAO.md)**):
+
+1. **Rede e segurança** — criar Security Groups (RDS, Proxy, Bastion), DB Subnet Group e configurar o SSM Session Manager
+2. **Credenciais** — criar o segredo no AWS Secrets Manager
+3. **Banco de dados** — criar a instância RDS (PostgreSQL) e executar os [scripts SQL](./sql)
+4. **Conexões e réplica** — configurar o RDS Proxy e a Réplica de Leitura
+5. **Backend** — build e deploy da Lambda + API Gateway
+6. **Frontend** — build e deploy no S3 + CloudFront
+7. **Backup e monitoramento** — configurar backup automático e dashboards no CloudWatch
+8. **Testes e validação** — validar gravação, leitura e ranking
+9. **Exclusão** — remover todos os recursos ao final para evitar cobranças
+
+> 📖 Cada etapa tem instruções detalhadas, campos reservados (placeholders) e telas do Console em **[IMPLANTACAO.md](./IMPLANTACAO.md)**.
+
+---
 
 ## 📋 Documentação
 
-| Arquivo | Conteúdo |
-|---------|----------|
-| [IMPLANTACAO.md](./IMPLANTACAO.md) | Passo a passo completo: infraestrutura, banco, build, deploy, backup, testes e exclusão |
-| [ARQUITETURA.md](./ARQUITETURA.md) | Diagramas Mermaid, fluxos, segurança e responsabilidades de cada serviço |
+| Documento | Conteúdo | Quando usar |
+|-----------|----------|-------------|
+| **[ARQUITETURA.md](./ARQUITETURA.md)** | Arquitetura do projeto: diagramas Mermaid, responsabilidade de cada serviço, fluxos de dados, backup e segurança | Para **entender** como o projeto foi desenhado |
+| **[IMPLANTACAO.md](./IMPLANTACAO.md)** | Passo a passo completo de implantação: infraestrutura, banco, build, deploy, backup, testes e exclusão | Para **construir e implantar** o projeto na AWS |
 
-## 🚀 Início Rápido
-
-1. Leia o `IMPLANTACAO.md` e siga as etapas na ordem
-2. Configure a infraestrutura na AWS (VPC, Security Groups, RDS, Proxy, Réplica)
-3. Execute os scripts SQL para criar o banco
-4. Faça build e deploy do backend e frontend
-5. Teste as funcionalidades
-6. Ao terminar, exclua todos os recursos para evitar cobranças
+---
 
 ## 💰 Custos Estimados (se NÃO excluir)
 
@@ -85,9 +157,21 @@ Admin → SSM Session Manager → EC2 Bastion → RDS / Proxy / Réplica
 
 ⚠️ Valores aproximados para us-east-1. Consulte a [Calculadora AWS](https://calculator.aws/) para valores atualizados.
 
-## ⚠️ Importante
+---
 
-- Nenhuma senha, chave ou endpoint real está no código
-- Todos os valores sensíveis usam variáveis de ambiente ou campos reservados
-- A implantação é feita **manualmente pelo Console AWS** (sem Terraform/CDK)
-- Exclua TODOS os recursos ao terminar para não ter cobrança
+## 🔒 Segurança
+
+- Nenhuma senha, chave ou endpoint real está no código — tudo usa variáveis de ambiente ou campos reservados
+- RDS e ElastiCache em **sub-redes privadas**, sem acesso público
+- **Criptografia** em trânsito (TLS/SSL) e em repouso (AES-256 via KMS)
+- **Rotação de credenciais** automática com Secrets Manager
+- Acesso administrativo via **SSM Session Manager** (sem SSH exposto)
+- Security Groups encadeados aplicando o **princípio do menor privilégio**
+
+Detalhes e princípios completos em **[ARQUITETURA.md](./ARQUITETURA.md#6-segurança)**.
+
+---
+
+## 📄 Licença
+
+Distribuído sob a licença MIT. Veja [LICENSE](./LICENSE) para mais informações.
