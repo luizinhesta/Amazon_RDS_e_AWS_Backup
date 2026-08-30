@@ -1,4 +1,4 @@
-# 🦖 AWS Dino Game — Projeto 3: Amazon RDS, Réplica e Backup
+# 🦖 Dino Game — Amazon RDS, Réplica e Backup - Parte 3 - 3
 
 ![Descrição da imagem](<imagens/imagem%20(1).png>)
 
